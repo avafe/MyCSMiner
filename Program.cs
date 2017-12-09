@@ -45,7 +45,10 @@ namespace DotNetStratumMiner
                 Console.WriteLine("-p PASSWORD    Password for mining server");
                 Console.WriteLine("-h             Display this help text and exit");
                 Console.WriteLine("-t             Threads");
-                Environment.Exit(-1);
+                CommandOptions = Console.ReadLine();
+                CommandOptions = CommandOptions.Replace("-o ", "-o").Replace("-u ", "-u").Replace("-p ", "-p").Replace("-t ", "-t");
+                Options = CommandOptions.Split(' ');
+                //Environment.Exit(-1);
             }
 
             foreach (string arg in Options)
