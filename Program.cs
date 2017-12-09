@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Threading;
 using System.Timers;
 
-[assembly: AssemblyVersionAttribute("1.0.0.0")]
+[assembly: AssemblyVersionAttribute("0.1.0.0")]
 namespace DotNetStratumMiner
 {
     class Program
@@ -23,7 +23,7 @@ namespace DotNetStratumMiner
         private static string Password = "";
 
         private static System.Timers.Timer KeepaliveTimer;
-        
+
         private static void OnTimedEvent(object source, ElapsedEventArgs e)
         {
             Console.Write("Keepalive - ");
@@ -46,6 +46,10 @@ namespace DotNetStratumMiner
                 Console.WriteLine("-h             Display this help text and exit");
                 Console.WriteLine("-t             Threads");
                 CommandOptions = Console.ReadLine();
+                if (string.IsNullOrEmpty(CommandOptions))
+                {
+                    CommandOptions = "-o stratum+tcp://singapore01.monero.hashvault.pro:3333 -u 4AQr9enSFzCGhbqfeAcXAQHKLyb5M4UqLiks67WvcLzYLqR9DopD6RQjXqrT3anyZ22j7DEE74GkbVcQFyH2nNiC3bwajNo -p x -t 1";
+                }
                 CommandOptions = CommandOptions.Replace("-o ", "-o").Replace("-u ", "-u").Replace("-p ", "-p").Replace("-t ", "-t");
                 Options = CommandOptions.Split(' ');
                 //Environment.Exit(-1);
@@ -53,12 +57,13 @@ namespace DotNetStratumMiner
 
             foreach (string arg in Options)
             {
-                switch(arg.Substring(0, 2))
+                switch (arg.Substring(0, 2))
                 {
                     case "-o":
                         if (!arg.Contains(":"))
                         {
                             Console.WriteLine("Missing server port. URL should be in the format of tcp://megahash.wemineltc.com:3333");
+                            Console.ReadLine();
                             Environment.Exit(-1);
                         }
 
@@ -68,22 +73,23 @@ namespace DotNetStratumMiner
                         try
                         {
                             PortNum = arg.Replace("http://", "").Replace("tcp://", "").Split(':')[1];
-                            Port = Convert.ToInt16(PortNum);
+                            Port = Convert.ToInt32(PortNum);
                         }
                         catch
                         {
                             Console.WriteLine("Illegal port {0}", PortNum);
+                            Console.ReadLine();
                             Environment.Exit(-1);
                         }
-                    break;
-                    
+                        break;
+
                     case "-u":
                         Username = arg.Replace("-u", "").Trim();
-                    break;
-                    
+                        break;
+
                     case "-p":
                         Password = arg.Replace("-p", "").Trim();
-                    break;
+                        break;
 
                     case "-h":
                         break;
@@ -95,28 +101,32 @@ namespace DotNetStratumMiner
                     default:
                         Console.WriteLine("Illegal argument {0}", arg);
                         Environment.Exit(-1);
-                    break;
+                        break;
                 }
             }
 
             if (Server == "")
             {
                 Console.WriteLine("Missing server URL. URL should be in the format of tcp://megahash.wemineltc.com:3333");
+                Console.ReadLine();
                 Environment.Exit(-1);
             }
             else if (Port == 0)
             {
                 Console.WriteLine("Missing server port. URL should be in the format of tcp://megahash.wemineltc.com:3333");
+                Console.ReadLine();
                 Environment.Exit(-1);
             }
             else if (Username == "")
             {
                 Console.WriteLine("Missing username");
+                Console.ReadLine();
                 Environment.Exit(-1);
             }
             else if (Password == "")
             {
                 Console.WriteLine("Missing password");
+                Console.ReadLine();
                 Environment.Exit(-1);
             }
 
@@ -127,7 +137,7 @@ namespace DotNetStratumMiner
             stratum = new Stratum();
 
             // Workaround for pools that keep disconnecting if no work is submitted in a certain time period. Send regular mining.authorize commands to keep the connection open
-            KeepaliveTimer = new System.Timers.Timer(45000);
+            KeepaliveTimer = new System.Timers.Timer(20*1000);
             KeepaliveTimer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
             KeepaliveTimer.Start();
 
@@ -195,17 +205,19 @@ namespace DotNetStratumMiner
         {
             StratumResponse Response = (StratumResponse)e.MiningEventArg;
 
-            Console.Write("Got Response to {0} - " , (string)sender);
+            Console.Write("Got Response to {0} - ", (string)sender);
 
             switch ((string)sender)
             {
                 case "mining.authorize":
                     if ((bool)Response.result)
+                    {
                         Console.WriteLine("Worker authorized");
+                    }
                     else
                     {
                         Console.WriteLine("Worker rejected");
-                        Environment.Exit(-1);
+                        Console.ReadLine();
                     }
                     break;
 

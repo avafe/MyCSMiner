@@ -65,8 +65,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Replicon.Cryptography.SCrypt, Version=1.1.6.13, Culture=neutral, PublicKeyToken=4e0c787cc79e77b2, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\Replicon.Cryptography.SCrypt.dll</HintPath>
+      <HintPath>packages\Replicon.Cryptography.SCrypt.1.1.6.13\lib\net40\Replicon.Cryptography.SCrypt.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
